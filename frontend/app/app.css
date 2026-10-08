@@ -259,3 +259,29 @@ body {
   background: var(--bg-button-disabled);
   cursor: not-allowed;
 }
+
+.chat-thread-item-content {
+  display: flex;
+}
+
+.chat-thread-item-content a {
+  flex: 1;
+}
+
+.chat-thread-item-content button {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  height: auto;
+  width: 38px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: red;
+}
+
+.chat-thread-item-content:hover button {
+  background-color: rgb(255, 226, 226);
+  opacity: 1;
+  pointer-events: auto;
+}
