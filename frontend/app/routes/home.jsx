@@ -1,15 +1,8 @@
+import React from "react";
 import { ChatMessages, ChatInput } from "../components/Chat.jsx";
 
-/**
- * STATIC DATA AT MODULE SCOPE
- *
- * Moving data to module scope demonstrates several key concepts:
- * 1. DATA LIFTING: Moving data up to parent components
- * 2. PROPS PASSING: Parent components pass data down to children
- * 3. SEPARATION OF CONCERNS: Data management vs. UI rendering
- * 4. REUSABILITY: ChatMessages can now work with different message arrays
- */
-const messages = [
+
+const initialMessages = [
   {
     id: 1,
     type: "user",
@@ -67,21 +60,24 @@ const messages = [
   },
 ];
 
-/**
- * Home Component (Chat Page)
- *
- * Now demonstrates DATA FLOW and PROPS PASSING:
- * 1. LIFTING STATE UP: Data moved from child to parent component
- * 2. PROPS PASSING: Passing messages array down to ChatMessages
- * 3. COMPONENT REUSABILITY: ChatMessages can now work with any messages array
- * 4. SEPARATION OF CONCERNS: Home manages data, ChatMessages handles rendering
- */
+
 export default function Home() {
+  const [messages, setMessages] = React.useState(initialMessages);
+
+  const addMessage = (content) => {
+    const newMessage = {
+      id: messages.length + 1,
+      type: "user",
+      content: content,
+    };
+
+    setMessages([...messages, newMessage]);
+  };
+
   return (
     <main className="chat-container">
-      {/* Passing messages as props - this is DATA FLOW! */}
       <ChatMessages messages={messages} />
-      <ChatInput />
+      <ChatInput onAddMessage={addMessage} />
     </main>
   );
 }

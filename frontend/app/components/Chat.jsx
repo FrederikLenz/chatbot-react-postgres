@@ -1,21 +1,6 @@
-/**
- * Chat Components
- *
- * This file contains all chat-related components for the messaging interface.
- * It demonstrates:
- * 1. LOGICAL GROUPING: Related components organized in the same file
- * 2. COMPONENT HIERARCHY: Message -> ChatMessages -> ChatInput
- * 3. EXPORT PATTERNS: Multiple named exports from a single file
- * 4. REUSABLE MODULES: Components that can be imported anywhere in the app
- */
+import React from "react";
 
-/**
- * Message Component
- *
- * A reusable component for displaying individual chat messages.
- * Accepts props to customize message type and uses props.children for message content.
- * https://react.dev/learn/passing-props-to-a-component#passing-jsx-as-children
- */
+
 function Message({ type = "user", children }) {
   return (
     <div className={`message ${type}-message`}>
@@ -24,20 +9,10 @@ function Message({ type = "user", children }) {
   );
 }
 
-/**
- * ChatMessages Component
- *
- * Now this component receives data via PROPS! Key concepts:
- * 1. PROPS ACCEPTANCE: Component accepts a 'messages' prop from parent
- * 2. DATA FLOW: Data flows down from parent (Home) to child (ChatMessages)
- * 3. COMPONENT REUSABILITY: Can work with any messages array passed as props
- * 4. SEPARATION OF CONCERNS: Component focuses on rendering, parent manages data
- * 5. MAP() WITH PROPS: Uses props.messages instead of internal data
- */
+
 function ChatMessages({ messages = [] }) {
   return (
     <div className="chat-messages">
-      {/* Using props.messages - data comes from parent component! */}
       {messages.map((message) => (
         <Message key={message.id} type={message.type}>
           {message.content}
@@ -47,33 +22,49 @@ function ChatMessages({ messages = [] }) {
   );
 }
 
-/**
- * ChatInput Component
- *
- * Form component that handles user input for sending messages.
- * Contains textarea and send button for message composition.
- */
-function ChatInput() {
+
+function ChatInput({ onAddMessage }) {
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    const message = formData.get("message").trim();
+
+    if (!message) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    if (onAddMessage) {
+      onAddMessage(message);
+    }
+
+    event.target.reset();
+
+    setTimeout(() => {
+      setIsSubmitting(false);
+    }, 1000);
+  };
+
   return (
     <div className="chat-input-container">
-      <div className="chat-input-wrapper">
+      <form className="chat-input-wrapper" onSubmit={handleSubmit}>
         <textarea
+          name="message"
           className="chat-input"
           placeholder="Type your message here..."
           rows="1"
         />
-        <button className="send-button" type="button">
-          Send
+        <button className="send-button" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Sending..." : "Send"}
         </button>
-      </div>
+      </form>
     </div>
   );
 }
 
-/**
- * Named Exports
- *
- * We export each component individually so they can be imported separately
- * if needed. This provides flexibility in how components are used.
- */
+
 export { Message, ChatMessages, ChatInput };

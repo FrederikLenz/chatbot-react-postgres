@@ -1,69 +1,83 @@
-/**
- * Sidebar Components
- *
- * This file demonstrates React component organization and modularity:
- * 1. Multiple related components in one file
- * 2. Import/export patterns for sharing components
- * 3. Component composition and hierarchy
- * 4. File organization for better project structure
- */
+import React from "react";
+import { href, Link } from "react-router";
 
-/**
- * SidebarHeader Component
- *
- * Handles the top section of the sidebar with title and new chat button.
- * This component demonstrates single responsibility and reusability.
- */
+
 function SidebarHeader() {
   return (
     <div className="sidebar-header">
       <h2 className="chatbot-title">Chatbot</h2>
-      <a href="/chat/new" className="new-chat-btn">
+      <Link to="/chat/new" className="new-chat-btn">
         + New
-      </a>
+      </Link>
     </div>
   );
 }
 
-/**
- * ChatThreadItem Component
- *
- * A reusable component for individual chat thread links.
- * Demonstrates props usage: receives href and title from parent component.
- * This pattern allows the same component structure with different data.
- */
-function ChatThreadItem({ href, title }){
+
+function ChatThreadItem({ thread, onDeleteThread }) {
+  const { id, title } = thread;
+
+  const handleDeleteClick = (event) => {
+    event.stopPropagation();
+
+    if (onDeleteThread) {
+      onDeleteThread(id);
+    }
+  };
+
   return (
     <li className="chat-thread-item">
       <div className="chat-thread-item-content">
-        <a href={href} className="chat-thread-link">
+        <Link
+          to={href("/chat/:threadId", { threadId: id })}
+          className="chat-thread-link"
+        >
           {title}
-        </a>
-        <button aria-label="delete-thread" type="button">&times;</button>
+        </Link>
+        <button
+          className="delete-thread-btn"
+          aria-label={`Delete thread: ${title}`}
+          title="Delete this conversation"
+          type="button"
+          onClick={handleDeleteClick}
+        >
+          &times;
+        </button>
       </div>
     </li>
   );
 }
 
-/**
- * ChatThreadsList Component
- *
- * Now receives data via PROP DRILLING! This demonstrates:
- * 1. PROP DRILLING: Data flows Layout -> Sidebar -> ChatThreadsList
- * 2. COMPONENT REUSABILITY: Can work with any threads array passed as props
- * 3. DATA FLOW: Shows how data moves through multiple component layers
- * 4. CONSISTENT PATTERNS: Uses same props.data.map() pattern as ChatMessages
- */
-function ChatThreadsList({ threads = [] }) {
+
+function ChatThreadsList({ threads = [], onDeleteThread }) {
+  const [searchValue, setSearchValue] = React.useState("");
+
+  const handleSearchChange = (event) => {
+    setSearchValue(event.target.value);
+  };
+
+  const filteredThreads = threads.filter((thread) =>
+    thread.title.toLowerCase().includes(searchValue.toLowerCase()),
+  );
+
   return (
     <nav className="chat-threads-list" aria-label="Chat threads">
+      <div className="search-container">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search conversations..."
+          value={searchValue}
+          onChange={handleSearchChange}
+        />
+      </div>
+
       <ul>
-        {/* Using props.threads - data passed down through prop drilling! */}
-        {threads.map((thread) => (
+        {filteredThreads.map((thread) => (
           <ChatThreadItem
             key={thread.id}
-            href={thread.href}
-            title={thread.title}
+            thread={thread}
+            onDeleteThread={onDeleteThread}
           />
         ))}
       </ul>
@@ -71,12 +85,7 @@ function ChatThreadsList({ threads = [] }) {
   );
 }
 
-/**
- * SidebarFooter Component
- *
- * Handles the user profile section at the bottom of the sidebar.
- * Demonstrates component modularity and independence.
- */
+
 function SidebarFooter() {
   return (
     <div className="sidebar-footer">
@@ -94,21 +103,12 @@ function SidebarFooter() {
   );
 }
 
-/**
- * Main Sidebar Component
- *
- * Now demonstrates PROP DRILLING - receiving props and passing them down:
- * 1. PROPS ACCEPTANCE: Receives 'threads' prop from Layout parent
- * 2. PROP DRILLING: Passes threads down to ChatThreadsList child
- * 3. INTERMEDIATE COMPONENT: Acts as bridge between Layout and ChatThreadsList
- * 4. COMPONENT COMPOSITION: Combines multiple components while managing data flow
- */
-export default function Sidebar({ threads }) {
+
+export default function Sidebar({ threads, onDeleteThread }) {
   return (
     <aside className="sidebar">
-      {/* Component composition with prop drilling */}
       <SidebarHeader />
-      <ChatThreadsList threads={threads} />
+      <ChatThreadsList threads={threads} onDeleteThread={onDeleteThread} />
       <SidebarFooter />
     </aside>
   );
