@@ -64,12 +64,14 @@ const initialMessages = [
 export default function Home() {
   const [messages, setMessages] = React.useState(initialMessages);
 
+
   const addMessage = (content) => {
     const newMessage = {
       id: messages.length + 1,
       type: "user",
       content: content,
     };
+
 
     setMessages([...messages, newMessage]);
   };

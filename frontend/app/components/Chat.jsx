@@ -26,8 +26,10 @@ function ChatMessages({ messages = [] }) {
 function ChatInput({ onAddMessage }) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+
 
     const formData = new FormData(event.target);
     const message = formData.get("message").trim();

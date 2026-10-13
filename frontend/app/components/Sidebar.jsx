@@ -1,5 +1,5 @@
 import React from "react";
-import { href, Link } from "react-router";
+import { href, Link, NavLink } from "react-router";
 
 
 function SidebarHeader() {
@@ -28,12 +28,20 @@ function ChatThreadItem({ thread, onDeleteThread }) {
   return (
     <li className="chat-thread-item">
       <div className="chat-thread-item-content">
-        <Link
+        <NavLink
           to={href("/chat/:threadId", { threadId: id })}
-          className="chat-thread-link"
+          className={({ isActive, isPending }) =>
+            [
+              "chat-thread-link",
+              isActive && "chat-thread-link-active",
+              isPending && "chat-thread-link-pending",
+            ]
+              .filter(Boolean)
+              .join(" ")
+          }
         >
           {title}
-        </Link>
+        </NavLink>
         <button
           className="delete-thread-btn"
           aria-label={`Delete thread: ${title}`}
@@ -52,9 +60,11 @@ function ChatThreadItem({ thread, onDeleteThread }) {
 function ChatThreadsList({ threads = [], onDeleteThread }) {
   const [searchValue, setSearchValue] = React.useState("");
 
+
   const handleSearchChange = (event) => {
     setSearchValue(event.target.value);
   };
+
 
   const filteredThreads = threads.filter((thread) =>
     thread.title.toLowerCase().includes(searchValue.toLowerCase()),
