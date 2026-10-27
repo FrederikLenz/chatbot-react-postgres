@@ -32,6 +32,67 @@ app.get("/", (req, res) => {
   });
 });
 
+
+app.post("/api/test-groq", async (req, res) => {
+  try {
+  const apiKey = process.env.GROQ_API_KEY
+
+  if (!apiKey) {
+    return res.status(500).json({
+      error:
+        "groq API key not configured. Please set GROQ_API_KEY in your .env file"
+    });
+  }
+
+  const groqResponse = await fetch(
+  "https://api.groq.com/openai/v1/chat/completions",
+  {
+    method: "POST",
+    headers: {
+      "Content-type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify ({
+      model: "openai/gpt-oss-20b",
+      messages: [
+            {
+              role: "user",
+              content: "Hello! Please respond with a short greeting.",
+            },
+          ],
+      }),
+  });
+
+  if (!groqResponse.ok) {
+    const errorData = await groqResponse.json();
+
+    console.error("groq API error", errorData);
+
+    return res.status(groqResponse.status).json({
+      error: "Failed to get response from groq API",
+      details: errorData,
+    });
+  }
+
+  const data = await groqResponse.json();
+
+  res.json({
+    message: "Succesfully connected to groq API",
+    response: data,
+  });
+
+ } catch (error) {
+    console.error("Error testing groq API", error);
+    res.status(500).json({
+      error: "Failed to test groq API",
+      details: error.message,
+    });
+  }
+});
+
+
+
+
 /**
  * GET /api/threads
  *
