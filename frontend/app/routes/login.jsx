@@ -1,32 +1,3 @@
-/**
- * Login Route
- *
- * This route allows existing users to log in with their email and password.
- *
- * Authentication Flow:
- * 1. User enters email and password in the form
- * 2. Form submits to clientAction
- * 3. clientAction calls Supabase Auth API (supabase.auth.signInWithPassword)
- * 4. Supabase verifies the password against the stored hash
- * 5. If correct, Supabase generates a JWT (JSON Web Token)
- * 6. Supabase stores the JWT in localStorage automatically
- * 7. User is redirected to home page
- * 8. If incorrect, an error message is displayed
- *
- * What Happens Behind the Scenes:
- * - Supabase retrieves the password hash from the database
- * - Compares the entered password with the stored hash using bcrypt
- * - If they match, creates a signed JWT containing user info
- * - JWT is stored in localStorage under key "sb-<project-ref>-auth-token"
- *
- * JWT (JSON Web Token):
- * - A secure way to transmit user information
- * - Contains: user ID, email, expiration time, and more
- * - Signed with a secret key so it can't be tampered with
- * - You can decode JWTs at https://jwt.io to see what's inside
- * - Try it: After logging in, copy your token from localStorage and paste it at jwt.io!
- */
-
 import {
   Form,
   Link,
@@ -37,20 +8,16 @@ import {
 } from "react-router";
 import { supabase } from "../lib/supabase";
 
-/**
- * Client Action - Handles login form submission
- */
+
 export async function clientAction({ request }) {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
 
-  // Validate inputs
   if (!email || !password) {
     return { error: "Email and password are required" };
   }
 
-  // Call Supabase Auth API to sign in
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -58,28 +25,21 @@ export async function clientAction({ request }) {
 
   if (error) {
     console.error("Login error:", error);
-    // Return a user-friendly error message
     return { error: "Invalid email or password" };
   }
 
-  // Success! Supabase has stored the JWT token in localStorage
-  // The token will be automatically included in future requests
   console.log("Login successful! User:", data.user.email);
   console.log("JWT token has been stored in localStorage");
 
-  // Redirect to home page
   return redirect("/");
 }
 
-/**
- * Login Component
- */
+
 export default function Login() {
   const actionData = useActionData();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
 
-  // Check if user was redirected here after successful registration
   const [searchParams] = useSearchParams();
   const justRegistered = searchParams.get("registered") === "true";
 
@@ -133,7 +93,6 @@ export default function Login() {
           Don't have an account? <Link to="/register">Sign up</Link>
         </p>
 
-        {/* Educational hint */}
         <div className="auth-hint">
           <p>
             💡 <strong>Explore JWTs:</strong> After logging in, open DevTools →
